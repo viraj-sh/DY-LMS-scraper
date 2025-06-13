@@ -2,8 +2,6 @@
 
 A Python tool to log in to DY Patil LMS, scrape all course resources, and download them for offline use.
 
----
-
 ## Features
 
 * Automatic secure login
@@ -13,7 +11,6 @@ A Python tool to log in to DY Patil LMS, scrape all course resources, and downlo
 * One command to run everything via a simple menu
 * Safe local storage of your session and credentials
 
----
 
 ## Project Structure
 
@@ -60,8 +57,6 @@ cd DY-LMS-scraper
 
 Replace `<your-repo-url>` with your actual Git repository URL.
 
----
-
 ### 2. Create and Activate a Virtual Environment
 
 Create a virtual environment inside the cloned folder:
@@ -84,8 +79,6 @@ Activate it:
   source venv/bin/activate
   ```
 
----
-
 ### 3. Install Dependencies
 
 Upgrade `pip` and install all required Python packages:
@@ -94,8 +87,6 @@ Upgrade `pip` and install all required Python packages:
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
-
----
 
 ### 4. Run the Menu
 
@@ -151,16 +142,12 @@ When you run `run.py`, you’ll see this menu:
 * No data is sent anywhere except your LMS account.
 * Use responsibly — generating too many sessions or scraping too fast may lead to IP blocking by your college.
 
----
-
 ## Disclaimer
 
 * This tool is for downloading course materials you already have access to.
 * Do not use it to share or misuse content.
 * The author is not responsible for misuse.
 * Use at your own risk.
-
----
 
 ## Planned Improvements
 
@@ -170,13 +157,9 @@ When you run `run.py`, you’ll see this menu:
 * Cloud backups or integrations
 * Open to suggestions and contributions
 
----
-
 ## Contributing
 
 Pull requests, issues, and ideas are welcome!
-
----
 
 ## Contact
 
