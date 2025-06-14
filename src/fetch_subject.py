@@ -4,6 +4,7 @@ import logging
 import re
 import time
 import random
+import argparse
 from pathlib import Path
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
@@ -62,7 +63,12 @@ def download_subject_html(session, url: str, save_path: Path):
     time.sleep(delay)
 
 def process_subjects():
-    """Main processing function with concurrency + polite delay"""
+    """Main processing function with concurrency + polite delay + filtering"""
+    parser = argparse.ArgumentParser(description='Fetch LMS subject data')
+    parser.add_argument('--semester', help='Short name of semester to fetch')
+    parser.add_argument('--subject', help='Specific subject URL to fetch')
+    args = parser.parse_args()
+
     session = create_retry_session()
     moodle_session = load_moodle_session()
     session.cookies.set("MoodleSession", moodle_session, domain="mydy.dypatil.edu")
@@ -72,8 +78,16 @@ def process_subjects():
     tasks = []
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         for semester in semesters:
+            # If filtering for a specific semester, skip others
+            if args.semester and semester["shortName"] != args.semester:
+                continue
+
             sem_dir = SUBJECTS_DIR / sanitize_filename(semester["shortName"])
             for subject in semester["subjects"]:
+                # If filtering for a specific subject URL, skip others
+                if args.subject and subject["url"] != args.subject:
+                    continue
+
                 filename = f"{sanitize_filename(subject['shortName'])}.html"
                 save_path = sem_dir / filename
 
@@ -82,7 +96,12 @@ def process_subjects():
                     continue
 
                 logging.info(f"[→] Queued: {subject['name']}")
-                tasks.append(executor.submit(download_subject_html, session, subject["url"], save_path))
+                tasks.append(executor.submit(
+                    download_subject_html,
+                    session,
+                    subject["url"],
+                    save_path
+                ))
 
         # Wait for all tasks to complete
         for future in as_completed(tasks):

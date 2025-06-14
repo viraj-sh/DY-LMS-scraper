@@ -1,2 +1,8 @@
 venv
-data
+bak/dashboard copy.py.bak
+bak/fetch_document copy.py.bak
+bak/fetch_subject copy.py.bak
+bak/login_page copy.py.bak
+bak/parse_document copy.py.bak
+bak/readme copy.md.bak
+bak/run.py

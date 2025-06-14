@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import json
 import logging
 from pathlib import Path
+import shutil
 from contextlib import suppress
 from datetime import datetime, timedelta
 from requests.adapters import HTTPAdapter
@@ -15,15 +16,14 @@ SESSION_ENV_FILE = DATA_DIR / "session.env"
 LOGIN_URL = "https://mydy.dypatil.edu/rait/login/index.php"
 SESSION_MAX_AGE_HOURS = 6
 
-# === Logging Setup ===
+# === Logging ===
 logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s')
-
 
 def create_retry_session():
     retry_strategy = Retry(
         total=3,
         backoff_factor=1,
-        status_forcelist=[502, 503, 504],
+        status_forcelist=[502, 503, 504, 408],
         allowed_methods=["GET", "POST"]
     )
     adapter = HTTPAdapter(max_retries=retry_strategy)
@@ -32,43 +32,18 @@ def create_retry_session():
     session.mount("http://", adapter)
     return session
 
-
 def save_session_token(token: str):
     DATA_DIR.mkdir(parents=True, exist_ok=True)
-    session_line = f"MOODLESESSION={token}\n"
-    timestamp_line = f"# SAVED_AT={datetime.utcnow().isoformat()}\n"
-
-    lines = []
-
-    with suppress(FileNotFoundError):
-        with SESSION_ENV_FILE.open("r") as f:
-            lines = f.readlines()
-
-    updated = False
-    for idx, line in enumerate(lines):
-        if line.startswith("MOODLESESSION="):
-            lines[idx] = session_line
-            updated = True
-        elif line.startswith("# SAVED_AT="):
-            lines[idx] = timestamp_line
-
-    if not updated:
-        lines.append(session_line)
-        lines.append(timestamp_line)
-
-    with SESSION_ENV_FILE.open("w") as f:
-        f.writelines(lines)
-
-    logging.info(f"Session token saved to {SESSION_ENV_FILE}")
-
+    timestamp = f"# SAVED_AT={datetime.utcnow().isoformat()}"
+    SESSION_ENV_FILE.write_text(f"MOODLESESSION={token}\n{timestamp}\n")
+    logging.info("Session token saved.")
 
 def get_login_token(session: requests.Session) -> str:
-    response = session.get(LOGIN_URL)
+    response = session.get(LOGIN_URL, timeout=10)
     response.raise_for_status()
     soup = BeautifulSoup(response.text, "html.parser")
     token_input = soup.find("input", attrs={"name": "logintoken"})
     return token_input["value"] if token_input else ""
-
 
 def login_and_get_session_token(credentials: dict) -> str:
     session = create_retry_session()
@@ -83,16 +58,12 @@ def login_and_get_session_token(credentials: dict) -> str:
         "logintoken": logintoken
     }
 
-    response = session.post(LOGIN_URL, data=payload)
+    response = session.post(LOGIN_URL, data=payload, timeout=10)
     response.raise_for_status()
 
     soup = BeautifulSoup(response.text, "html.parser")
-
-    # === Detect login failure ===
-    error_span = soup.select_one("div.loginerrors span.error")
-    if error_span:
-        error_msg = error_span.text.strip()
-        raise ValueError(f"Login failed: {error_msg}")
+    if soup.select_one("div.loginerrors span.error"):
+        raise ValueError("Login failed: Invalid credentials")
 
     if "Dashboard" not in response.text:
         raise RuntimeError("Login failed for unknown reason.")
@@ -101,68 +72,32 @@ def login_and_get_session_token(credentials: dict) -> str:
         if cookie.name == "MoodleSession":
             return cookie.value
 
-    raise RuntimeError("MoodleSession cookie not found after login.")
-
+    raise RuntimeError("Session token not found in cookies.")
 
 def is_session_expired() -> bool:
     with suppress(FileNotFoundError):
-        with SESSION_ENV_FILE.open("r") as f:
-            for line in f:
-                if line.startswith("# SAVED_AT="):
-                    try:
-                        saved_time = datetime.fromisoformat(line.strip().split("=")[1])
-                        return datetime.utcnow() - saved_time > timedelta(hours=SESSION_MAX_AGE_HOURS)
-                    except ValueError:
-                        pass
+        for line in SESSION_ENV_FILE.read_text().splitlines():
+            if line.startswith("# SAVED_AT="):
+                try:
+                    saved_time = datetime.fromisoformat(line.split("=")[1])
+                    return datetime.utcnow() - saved_time > timedelta(hours=SESSION_MAX_AGE_HOURS)
+                except ValueError:
+                    break
     return True
 
+def session_exists() -> bool:
+    return SESSION_ENV_FILE.exists() and not is_session_expired()
 
-def generate_session(email=None, password=None) -> str:
+def generate_session(email: str, password: str) -> str:
     if not email or not password:
-        logging.info("Prompting for credentials...")
-        email = input("Enter your email: ").strip()
-        password = input("Enter your password: ").strip()
+        raise ValueError("Email and password are required.")
 
-    # Try login first, but don't save credentials yet
-    try:
-        token = login_and_get_session_token({"email": email, "password": password})
-    except ValueError as ve:
-        logging.error(str(ve))
-        raise
-    except Exception as e:
-        logging.exception("Unexpected error occurred")
-        raise
-
-    # Only save credentials if login was successful
+    # Optional: Clear the data directory before creating a new session
+    if DATA_DIR.exists():
+        shutil.rmtree(DATA_DIR)
     DATA_DIR.mkdir(parents=True, exist_ok=True)
-    with CREDENTIALS_FILE.open("w") as f:
-        json.dump({"email": email, "password": password}, f, indent=4)
 
+    token = login_and_get_session_token({"email": email, "password": password})
+    CREDENTIALS_FILE.write_text(json.dumps({"email": email, "password": password}, indent=4))
     save_session_token(token)
     return token
-
-
-
-def main():
-    if not is_session_expired():
-        logging.info("Session is still valid. Nothing to do.")
-        return
-
-    credentials = None
-    if CREDENTIALS_FILE.exists():
-        with CREDENTIALS_FILE.open("r") as f:
-            credentials = json.load(f)
-
-    email = credentials.get("email") if credentials else None
-    password = credentials.get("password") if credentials else None
-
-    if not email or not password:
-        logging.info("Credentials incomplete or missing.")
-        email = input("Enter your email: ").strip()
-        password = input("Enter your password: ").strip()
-
-    generate_session(email=email, password=password)
-
-
-if __name__ == "__main__":
-    main()

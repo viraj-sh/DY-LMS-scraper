@@ -1,168 +1,122 @@
-# DY-LMS Scraper
+# DY-LMS Scraper Dashboard
 
-A Python tool to log in to DY Patil LMS, scrape all course resources, and download them for offline use.
-
-## Features
-
-* Automatic secure login
-* Complete scraping pipeline: dashboard, subjects, documents, links
-* Interactive downloader: choose what to download
-* Structured folders and meaningful filenames
-* One command to run everything via a simple menu
-* Safe local storage of your session and credentials
-
-
-## Project Structure
-
-```
-.
-├── data/
-│   ├── credentials.json
-│   ├── session.env
-│   ├── dashboard.* (HTML/JSON)
-│   ├── subjects/
-│   ├── documents/
-│   ├── endlinks/
-│   ├── doclinks/
-│   └── output/ (downloaded files)
-├── requirements.txt
-├── run.py (main menu)
-├── src/ (all scripts)
-│   ├── generate_session.py
-│   ├── fetch_dashboard.py
-│   ├── parse_dashboard.py
-│   ├── fetch_subject.py
-│   ├── parse_subject.py
-│   ├── fetch_document.py
-│   ├── parse_document.py
-│   ├── ultimate_json.py
-│   ├── output.py
-│   └── analyze_modtypes.py
-├── web/ (optional, planned web version)
-└── README.md (this file)
-```
+Easily download and organize your DY Patil LMS course materials with this user-friendly dashboard—no technical knowledge required!
 
 ---
 
-## Getting Started
+## Quick Start
 
-### 1. Clone the Repository
+### 1. Installation (Windows, macOS, Linux)
 
-Open your terminal or command prompt and run:
+**Clone the repository:**
 
-```
-git clone DY-LMS-scraper
+```bash
+git clone https://github.com/viraj-sh/DY-LMS-scraper.git
 cd DY-LMS-scraper
 ```
 
-Replace `<your-repo-url>` with your actual Git repository URL.
+**Set up a Python virtual environment:**
 
-### 2. Create and Activate a Virtual Environment
+* **Linux/macOS:**
 
-Create a virtual environment inside the cloned folder:
-
-```
-python -m venv venv
-```
-
-Activate it:
-
-* **Windows:**
-
-  ```
-  venv\Scripts\activate
-  ```
-
-* **macOS/Linux:**
-
-  ```
+  ```bash
+  python3 -m venv venv
   source venv/bin/activate
   ```
 
-### 3. Install Dependencies
+* **Windows:**
 
-Upgrade `pip` and install all required Python packages:
+  ```cmd
+  python -m venv venv
+  venv\Scripts\activate
+  ```
 
-```
-pip install --upgrade pip
+**Upgrade pip and install dependencies:**
+
+```bash
+python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 4. Run the Menu
+**Start the dashboard:**
 
-Run the main menu to access all features:
+```bash
+streamlit run web/dashboard.py
+```
 
-```
-python run.py
-```
+This will open the dashboard in your default web browser.
 
 ---
 
-## How to Use the Menu
+## How to Use the Dashboard
 
-When you run `run.py`, you’ll see this menu:
+### 1. Log In
 
-```
-1. Generate Login Token
-2. Scrape All Data
-3. Download Resources
-0. Exit
-```
+* Enter your DY Patil LMS **email** and **password**.
+* Optionally, click the **Documentation** button for detailed guidance.
+* Credentials are only stored locally on your computer.
 
-**What each option does:**
+### 2. Fetch Your Data
 
-1. **Generate Login Token:**
-   Logs you in securely and saves your session info in `data/session.env`.
+* Click **Fetch Latest Data** to load all available semesters and subjects.
 
-2. **Scrape All Data:**
-   Runs the full scraping pipeline — fetches dashboard, subjects, documents, and builds all JSON data.
+### 3. Select a Semester
 
-3. **Download Resources:**
-   Downloads the actual files (PDFs, PPTs, etc.) into organized folders.
+* Use the radio buttons to choose your desired semester.
 
-4. **Exit:**
-   Closes the program.
+### 4. Fetch & Parse Semester
 
----
+* Click **Fetch+Parse \[Semester Name]** to load and process documents.
 
-## How It Works Internally
+### 5. Browse & Download Materials
 
-| Script                  | What it does                                                    |
-| ----------------------- | --------------------------------------------------------------- |
-| `generate_session.py`   | Handles LMS login and saves your session.                       |
-| `fetch_*` and `parse_*` | Scrapes and processes LMS data step by step.                    |
-| `ultimate_json.py`      | Combines all scraped data into a single JSON for easy download. |
-| `output.py`             | Handles file downloading and organizing.                        |
+* Expand any subject to view documents organized by week.
+* Each document displays its name, type, and a **Download** button.
+
+### 6. Log Out
+
+* Click **Logout** to securely delete all session data and credentials.
+* Recommended after each session.
+
+### 7. Report Issues
+
+* Use the GitHub repo link in the footer to report bugs or request features.
 
 ---
 
-## Data and Security
+## Important Notes
 
-* Your credentials and session token are saved locally inside the `data/` folder.
-* No data is sent anywhere except your LMS account.
-* Use responsibly — generating too many sessions or scraping too fast may lead to IP blocking by your college.
+**This tool is meant for personal use and convenience only.**
 
-## Disclaimer
+* **No unauthorized access:** Only use this tool with your own LMS credentials and data.
+* **Data privacy:** All session data is stored locally in a `data/` folder. Keep it private.
+* **Responsible usage:** Frequent login attempts or data fetching may trigger temporary bans.
+* **Always log out after use** to ensure your session data is securely cleared.
 
-* This tool is for downloading course materials you already have access to.
-* Do not use it to share or misuse content.
-* The author is not responsible for misuse.
-* Use at your own risk.
+---
 
-## Planned Improvements
+## Upcoming Features
 
-* Notifications when new resources are uploaded
-* Automatic file conversion (e.g., PPTX to PDF)
-* Web interface for easier use
-* Cloud backups or integrations
-* Open to suggestions and contributions
+* New resource notifications
+* Automatic file conversion (e.g., PPT/DOCX to PDF)
+* Enhanced web interface
+* Hosted version (zero setup)
+* Credentials encryption
+* Cloud integration (e.g., Google Drive, Discord)
 
-## Contributing
+**Contributions are welcome!**
 
-Pull requests, issues, and ideas are welcome!
+* Open an issue or submit a pull request on GitHub.
 
-## Contact
+**Interested in a hosted version?**
 
-Open an issue on GitHub or reach out if you have questions, find bugs, or want to contribute.
+* Reach out to the project owner—limited hosted dashboards available (small fee may apply).
 
+---
 
+## Need Help?
+
+* Click the **Documentation** button in the dashboard for detailed instructions.
+* Visit the [GitHub Issues](https://github.com/viraj-sh/DY-LMS-scraper/issues) page for support.
+
+Enjoy convenient access to your LMS resources—responsibly and securely!

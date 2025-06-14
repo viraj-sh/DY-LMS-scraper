@@ -1,13 +1,13 @@
 import json
 import re
+import argparse
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+# === Configuration ===
 DATA_DIR = Path("data")
 DOCLINKS_DIR = DATA_DIR / "doclinks"
 ENDLINKS_DIR = DATA_DIR / "endlinks"
-
-# === Extraction handlers ===
 
 def extract_flexpaper_url(html):
     match = re.search(r"PDFFile\s*:\s*['\"](https?://[^'\"]+\.pdf)['\"]", html)
@@ -95,9 +95,12 @@ def process_html(html_file):
     return None
 
 def process_subject(subject_dir, semester_name):
-    docs = []
     html_files = list(subject_dir.glob("*.html"))
+    if not html_files:
+        print(f"🚫 No HTML files found in {subject_dir}")
+        return
 
+    docs = []
     with ThreadPoolExecutor(max_workers=10) as executor:
         futures = {executor.submit(process_html, file): file for file in html_files}
         for future in as_completed(futures):
@@ -106,23 +109,36 @@ def process_subject(subject_dir, semester_name):
                 docs.append(result)
 
     if docs:
-        out_dir = ENDLINKS_DIR / semester_name
-        out_dir.mkdir(parents=True, exist_ok=True)
-        out_file = out_dir / f"{subject_dir.name}.json"
-        out_file.write_text(json.dumps(docs, indent=2, ensure_ascii=False), encoding="utf-8")
-        print(f"✅ {subject_dir.name}: {len(docs)} URLs extracted")
+        output_dir = ENDLINKS_DIR / semester_name
+        output_dir.mkdir(parents=True, exist_ok=True)
+        output_file = output_dir / f"{subject_dir.name}.json"
+        with open(output_file, "w", encoding="utf-8") as f:
+            json.dump(docs, f, indent=2, ensure_ascii=False)
+        print(f"✅ {output_file} written with {len(docs)} items")
     else:
-        print(f"🚫 {subject_dir.name}: No valid URLs found")
+        print(f"🚫 No valid documents found in {subject_dir}")
 
 def main():
-    for semester_dir in DOCLINKS_DIR.iterdir():
-        if not semester_dir.is_dir():
-            continue
-        for subject_dir in semester_dir.iterdir():
-            if not subject_dir.is_dir():
-                continue
-            process_subject(subject_dir, semester_dir.name)
+    parser = argparse.ArgumentParser(description="Parse downloaded LMS documents")
+    parser.add_argument("--semester", help="Target semester short name")
+    parser.add_argument("--subject", help="Target subject short name")
+    args = parser.parse_args()
+
+    if args.semester and args.subject:
+        # Single subject mode
+        subject_dir = DOCLINKS_DIR / args.semester / args.subject
+        if subject_dir.exists():
+            process_subject(subject_dir, args.semester)
+        else:
+            print(f"🚫 Directory not found: {subject_dir}")
+    else:
+        # Batch processing mode
+        for semester_dir in DOCLINKS_DIR.iterdir():
+            if semester_dir.is_dir():
+                for subject_dir in semester_dir.iterdir():
+                    if subject_dir.is_dir():
+                        process_subject(subject_dir, semester_dir.name)
 
 if __name__ == "__main__":
     main()
-    print("\n✅ All subjects processed with filetypes.")
+    print("\n✅ Document parsing completed")
