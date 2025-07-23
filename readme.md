@@ -17,14 +17,14 @@ cd DY-LMS-scraper
 
 **Set up a Python virtual environment:**
 
-* **Linux/macOS:**
+- **Linux/macOS:**
 
   ```bash
   python3 -m venv venv
   source venv/bin/activate
   ```
 
-* **Windows:**
+- **Windows:**
 
   ```cmd
   python -m venv venv
@@ -41,7 +41,7 @@ pip install -r requirements.txt
 **Start the dashboard:**
 
 ```bash
-streamlit run web/dashboard.py
+streamlit run dashboard.py
 ```
 
 This will open the dashboard in your default web browser.
@@ -52,35 +52,50 @@ This will open the dashboard in your default web browser.
 
 ### 1. Log In
 
-* Enter your DY Patil LMS **email** and **password**.
-* Optionally, click the **Documentation** button for detailed guidance.
-* Credentials are only stored locally on your computer.
+- Enter your DY Patil LMS **email** and **password**.
+- Credentials are only stored locally on your computer.
+- _(Documentation button to be implemented in a future update)_
 
-### 2. Fetch Your Data
+---
 
-* Click **Fetch Latest Data** to load all available semesters and subjects.
+### 2. Select Semester & Subject
 
-### 3. Select a Semester
+- The dashboard **automatically selects the latest semester** from the dropdown.
+- Choose your desired **subject** from the subject dropdown.
+- _(Currently only PDF files are supported. Support for .docx and other formats may be added in future updates.)_
 
-* Use the radio buttons to choose your desired semester.
+---
 
-### 4. Fetch & Parse Semester
+### 3. Filter Documents by Type
 
-* Click **Fetch+Parse \[Semester Name]** to load and process documents.
+Use the tag system to filter documents:
 
-### 5. Browse & Download Materials
+- **All** → Lists every document in the selected subject.
+- **Presentation** → Only shows presentation files.
+- **FlexPaper** → Only shows FlexPaper materials.
+- **DYQuestions** → Only shows question papers.
 
-* Expand any subject to view documents organized by week.
-* Each document displays its name, type, and a **Download** button.
+---
 
-### 6. Log Out
+### 4. Download Files
 
-* Click **Logout** to securely delete all session data and credentials.
-* Recommended after each session.
+- Click the **Download** button on any document to save it individually.
+- Use the **Download All** button at the bottom to save all files in the currently selected category to `./data`.
 
-### 7. Report Issues
+---
 
-* Use the GitHub repo link in the footer to report bugs or request features.
+### 5. Log Out
+
+- Click **Logout** to:
+  - Securely delete the session token.
+  - Clear locally stored credentials.
+- _(Recommended after each session.)_
+
+---
+
+### 6. Report Issues
+
+- Use the GitHub repo link in the footer to report bugs or request features.
 
 ---
 
@@ -88,35 +103,35 @@ This will open the dashboard in your default web browser.
 
 **This tool is meant for personal use and convenience only.**
 
-* **No unauthorized access:** Only use this tool with your own LMS credentials and data.
-* **Data privacy:** All session data is stored locally in a `data/` folder. Keep it private.
-* **Responsible usage:** Frequent login attempts or data fetching may trigger temporary bans.
-* **Always log out after use** to ensure your session data is securely cleared.
+- **No unauthorized access:** Only use this tool with your own LMS credentials and data.
+- **Data privacy:** All session data is stored locally in a `data/` folder. Keep it private.
+- **Responsible usage:** Frequent login attempts or data fetching may trigger temporary bans.
+- **Always log out after use** to ensure your session data is securely cleared.
 
 ---
 
 ## Upcoming Features
 
-* New resource notifications
-* Automatic file conversion (e.g., PPT/DOCX to PDF)
-* Enhanced web interface
-* Hosted version (zero setup)
-* Credentials encryption
-* Cloud integration (e.g., Google Drive, Discord)
+- New resource notifications
+- Automatic file conversion (e.g., PPT/DOCX to PDF)
+- Enhanced web interface
+- Hosted version (zero setup)
+- Credentials encryption
+- Cloud integration (e.g., Google Drive, Discord)
 
 **Contributions are welcome!**
 
-* Open an issue or submit a pull request on GitHub.
+- Open an issue or submit a pull request on GitHub.
 
 **Interested in a hosted version?**
 
-* Reach out to the project owner—limited hosted dashboards available (small fee may apply).
+- Reach out to the project owner—limited hosted dashboards available (small fee may apply).
 
 ---
 
 ## Need Help?
 
-* Click the **Documentation** button in the dashboard for detailed instructions.
-* Visit the [GitHub Issues](https://github.com/viraj-sh/DY-LMS-scraper/issues) page for support.
+- Click the **Documentation** button in the dashboard for detailed instructions.
+- Visit the [GitHub Issues](https://github.com/viraj-sh/DY-LMS-scraper/issues) page for support.
 
 Enjoy convenient access to your LMS resources—responsibly and securely!
