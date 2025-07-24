@@ -56,7 +56,7 @@ def main():
                 st.success("Login successful.")
                 st.rerun()
             except Exception as e:
-                st.error(f"Login failed: {e}")
+                st.error(f"{e}")
         return
 
     # LOGOUT

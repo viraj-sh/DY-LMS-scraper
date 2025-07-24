@@ -3,7 +3,6 @@ from urllib.parse import urlparse, parse_qs
 import re
 
 def extract_id_from_href(href):
-    """Extracts the 'id' parameter value from a URL like .../course/view.php?id=XXXX"""
     parsed_url = urlparse(href)
     query = parse_qs(parsed_url.query)
     # Ensure link matches actual course pattern
@@ -12,20 +11,9 @@ def extract_id_from_href(href):
     return None
 
 def is_semester_title(title):
-    """Return True if the given title is Semester I, Semester II, etc."""
     return re.fullmatch(r"Semester\s+[IVX0-9]+", title, flags=re.IGNORECASE) is not None
 
 def parse_semesters_and_subjects(html: str):
-    """
-    Only extracts semesters (Semester I, Semester II, ...) and their subject names and ids
-    from the dashboard HTML.
-
-    Returns:
-        list[dict]: [
-          {'semester': str, 'subjects': [ {'name': str, 'id': str}, ... ]},
-          ...
-        ]
-    """
     soup = BeautifulSoup(html, "html.parser")
     semesters = []
 
@@ -68,12 +56,4 @@ def parse_semesters_and_subjects(html: str):
 
     return semesters
 
-# ---- Manual test ----
-if __name__ == "__main__":
-    # Manual HTML file test (uncomment if needed)
-    # with open("fetched_dashboard.html", "r", encoding="utf-8") as f:
-    #     for sem in parse_semesters_and_subjects(f.read()):
-    #         print(f"{sem['semester']}:")
-    #         for subj in sem['subjects']:
-    #             print(f"  - {subj['name']} (id={subj['id']})")
-    pass
+

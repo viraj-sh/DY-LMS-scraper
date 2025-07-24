@@ -49,7 +49,7 @@ def parse_documents(html):
         raw_text = div.get_text(" ", strip=True) if div else a.get_text(" ", strip=True)
 
         # Remove leading/trailing spaces including &nbsp; chars by replacing them with space first
-        cleaned_text = raw_text.replace('\xa0', ' ').replace('&nbsp;', ' ').strip()
+        cleaned_text = raw_text.replace('\xa0', ' ').replace('&nbsp;', ' ').replace('&nbsp', ' ').strip()
         # Filter unwanted top entries: skip if first char is digit or first word is 'Training'
         first_word = cleaned_text.split()[0] if cleaned_text else ""
         if first_word.lower() == "training" or (first_word and first_word[0].isdigit()):
@@ -68,13 +68,4 @@ def get_class_documents(session_token, class_id):
     html = fetch_class_html(session_token, class_id)
     return parse_documents(html)
 
-# --- Fast manual test ---
-if __name__ == "__main__":
-    token = input("Session token: ").strip()
-    class_id = input("Class ID: ").strip()
-    docs = get_class_documents(token, class_id)
-    if docs:
-        for doc in docs:
-            print(f"{doc['type']} | id={doc['id']} | mod_type={doc['module_type']}")
-    else:
-        print("No resource documents found. Try checking the HTML structure or reviewing fetched content for this class.")
+
