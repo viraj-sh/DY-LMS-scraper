@@ -6,3 +6,5 @@ bak/login_page copy.py.bak
 bak/parse_document copy.py.bak
 bak/readme copy.md.bak
 bak/run.py
+data
+core/__pycache__

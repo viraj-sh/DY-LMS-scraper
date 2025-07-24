@@ -1,34 +1,33 @@
-import os
 import requests
 from urllib.parse import unquote, urlparse
-
-DATA_DIR = "data"
+import os
 
 def get_filename_from_url(file_url):
-    """Extract the filename from the pluginfile.php URL."""
+    """
+    Extracts a clean filename from the end of a URL.
+    """
     path = urlparse(file_url).path
     filename = os.path.basename(path)
-    # Sometimes filename has %20, etc.
     return unquote(filename) if filename else "downloaded_file"
 
-def download_file(session_token, file_url, filename=None):
-    os.makedirs(DATA_DIR, exist_ok=True)
-    if filename is None:
-        filename = get_filename_from_url(file_url)
-    save_path = os.path.join(DATA_DIR, filename)
-
+def download_file_as_bytes(session_token, file_url):
+    """
+    Fetches a file from a URL protected by MoodleSession.
+    Returns file bytes (to use with Streamlit's download_button).
+    """
     session = requests.Session()
     session.cookies.set("MoodleSession", session_token)
     with session.get(file_url, stream=True, timeout=30) as resp:
         resp.raise_for_status()
-        total = int(resp.headers.get('content-length', 0))
-        downloaded = 0
-        with open(save_path, "wb") as f:
-            for chunk in resp.iter_content(8192):
-                if chunk:
-                    f.write(chunk)
-                    downloaded += len(chunk)
-                    if total:
-                        done = int(50 * downloaded / total)
-                        print(f"\r[{'=' * done:<50}] {downloaded//1024}KB/{total//1024}KB", end="")
-        print(f"\nDownload finished: {save_path}")
+        return resp.content  # File as bytes
+
+# ---- Example usage for plain Python testing (saves locally) ----
+if __name__ == "__main__":
+    token = input("Session token: ").strip()
+    url = input("File URL: ").strip()
+    # You can also test this in plain python (if you want local save, not for Streamlit):
+    fname = get_filename_from_url(url)
+    data = download_file_as_bytes(token, url)
+    with open(fname, "wb") as f:
+        f.write(data)
+    print(f"Saved file: {fname}")
