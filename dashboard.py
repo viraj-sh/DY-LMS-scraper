@@ -100,11 +100,12 @@ def main():
         st.info("No documents found in this subject.")
         return
 
-    MODTYPES = ["all", "flexpaper", "dyquestion", "presentation"]
+    MODTYPES = ["all", "flexpaper", "dyquestion", "presentation", "url"]
     tag = st.radio("Filter documents by type", MODTYPES, horizontal=True)
     DOWNLOADABLE_TYPES = ("flexpaper", "dyquestion", "presentation")
+    NONDOWNLOADABLE_TYPES = ("url")
     if tag == "all":
-        display_docs = [d for d in docs if d["module_type"] in DOWNLOADABLE_TYPES]
+        display_docs = [d for d in docs if d["module_type"] in DOWNLOADABLE_TYPES or NONDOWNLOADABLE_TYPES]
     else:
         display_docs = [d for d in docs if d["module_type"] == tag]
 
@@ -127,6 +128,31 @@ def main():
                     )
                 else:
                     st.write("-")
+            elif doc['module_type'] in NONDOWNLOADABLE_TYPES:
+                file_url = get_document_resource(session_token, doc["module_type"], doc["id"])
+                st.markdown(
+                    f"""
+                    <style>
+                    a.custom-view-link {{
+                        text-decoration: none !important;
+                        color: #FAFAFA !important;
+                        font-weight: 500;
+                        transition: color 0.2s ease-in-out;
+                    }}
+                    a.custom-view-link:hover {{
+                        color: #FF4B4B !important;
+                        text-decoration: underline !important;
+                        text-underline-offset: 4px !important;
+                    }}
+                    </style>
+
+                    <a href="{file_url}" target="_blank" class="custom-view-link">View</a>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+
+
             else:
                 st.write("-")
 

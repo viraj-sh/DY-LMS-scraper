@@ -53,6 +53,15 @@ def extract_presentation_pdf_url(html):
             return a["href"]
     return None
 
+def extract_urlworkaround_url(html):
+    soup = BeautifulSoup(html, "html.parser")
+    content = soup.find("div", class_="urlworkaround")
+    if not content:
+        return None
+    for a in content.find_all("a", href=True):
+        if "https://" in a["href"]:
+            return a["href"]
+
 def get_document_resource(session_token, mod_type, doc_id):
     html = fetch_document_html(session_token, mod_type, doc_id)
     if mod_type == "flexpaper":
@@ -61,5 +70,7 @@ def get_document_resource(session_token, mod_type, doc_id):
         return extract_dyquestion_pdf_url(html)
     elif mod_type == "presentation":
         return extract_presentation_pdf_url(html)
+    elif mod_type == "url":
+        return extract_urlworkaround_url(html)
     else:
         return None

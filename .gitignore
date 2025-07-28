@@ -8,3 +8,4 @@ bak/readme copy.md.bak
 bak/run.py
 data
 core/__pycache__
+nohup.out
