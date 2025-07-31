@@ -105,7 +105,7 @@ def main():
     DOWNLOADABLE_TYPES = ("flexpaper", "dyquestion", "presentation")
     NONDOWNLOADABLE_TYPES = ("url")
     if tag == "all":
-        display_docs = [d for d in docs if d["module_type"] in DOWNLOADABLE_TYPES or NONDOWNLOADABLE_TYPES]
+        display_docs = [d for d in docs if d["module_type"] in DOWNLOADABLE_TYPES or d["module_type"] in NONDOWNLOADABLE_TYPES]
     else:
         display_docs = [d for d in docs if d["module_type"] == tag]
 
@@ -124,7 +124,8 @@ def main():
                         label="Download",
                         data=file_bytes,
                         file_name=filename,
-                        mime="application/octet-stream"
+                        mime="application/octet-stream",
+                        key=f"download-{doc['id']}"  # Unique key per doc
                     )
                 else:
                     st.write("-")
@@ -180,7 +181,9 @@ def main():
                     label="Download All as ZIP",
                     data=zip_buffer,
                     file_name=f"{subject_choice.replace(' ','_')}_documents.zip",
-                    mime="application/zip"
+                    mime="application/zip",
+                    key=f"zip-download-{selected_subject_id}"  # Ensures uniqueness per subject
+                    
                 )
             else:
                 st.info("No files could be added to ZIP.")
